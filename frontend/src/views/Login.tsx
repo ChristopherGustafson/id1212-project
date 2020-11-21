@@ -1,6 +1,9 @@
 import { Button, Paper, styled, TextField, Typography } from '@material-ui/core';
 import { useFormik } from 'formik';
+import { useContext } from 'react';
 import * as yup from 'yup';
+import AuthContext from '../context/AuthContext';
+import api from '../lib/fakeApi';
 
 const initialValues = {
   email: '',
@@ -8,14 +11,22 @@ const initialValues = {
 };
 
 const Login: React.FC = () => {
+  const { login } = useContext(AuthContext);
+
   const loginForm = useFormik({
+    validateOnMount: true,
     initialValues: initialValues,
     validationSchema: yup.object({
       email: yup.string().email('Invalid email').required('Required'),
       password: yup.string().required('Required'),
     }),
     onSubmit: (values) => {
-      console.log(values);
+      return api
+        .login(values)
+        .then((res) => res.json())
+        .then((user) => {
+          login(user);
+        });
     },
   });
 
@@ -49,7 +60,12 @@ const Login: React.FC = () => {
           onBlur={loginForm.handleBlur}
           onChange={loginForm.handleChange}
         />
-        <SubmitButton variant="contained" color="primary" onClick={loginForm.submitForm}>
+        <SubmitButton
+          disabled={loginForm.isValidating || !loginForm.isValid}
+          variant="contained"
+          color="primary"
+          onClick={loginForm.submitForm}
+        >
           Submit
         </SubmitButton>
       </Card>

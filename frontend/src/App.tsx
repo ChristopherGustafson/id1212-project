@@ -1,17 +1,10 @@
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { AuthContextProvider } from './context/AuthContext';
+import Router from './Router';
 
-import * as ROUTES from './lib/routes';
-
-import Login from './views/Login';
-
-const App: React.FC = () => {
-  return (
-    <Router>
-      <Switch>
-        <Route path={ROUTES.LOGIN} component={Login} />
-      </Switch>
-    </Router>
-  );
-};
+const App: React.FC = () => (
+  <AuthContextProvider>
+    <Router />
+  </AuthContextProvider>
+);
 
 export default App;
