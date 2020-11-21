@@ -1,1 +1,1 @@
-export const LOGIN = "/";
+export const LOGIN = '/';

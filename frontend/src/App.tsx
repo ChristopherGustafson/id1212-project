@@ -1,10 +1,10 @@
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-import * as ROUTES from "./lib/routes";
+import * as ROUTES from './lib/routes';
 
-import Login from "./views/Login";
+import Login from './views/Login';
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <Router>
       <Switch>
