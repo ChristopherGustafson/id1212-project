@@ -15,8 +15,11 @@ function createFakeResponse<T>(obj: T): fakeApiResponse<T> {
   });
 }
 
+const login = (_values: loginParams): fakeApiResponse<User> => createFakeResponse(fakeUser);
+
 const api = {
-  login: (_values: loginParams): fakeApiResponse<User> => createFakeResponse(fakeUser),
+  login,
+  register: login,
 };
 
 export default api;
