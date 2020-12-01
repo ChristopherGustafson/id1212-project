@@ -7,6 +7,7 @@ on:
 
 jobs:
   deploy-backend:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.6.8
@@ -17,6 +18,7 @@ jobs:
           appdir: backend/
 
   deploy-frontend:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.6.8
