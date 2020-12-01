@@ -6,9 +6,13 @@ const baseApiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 function makeRequest<T>(endpoint: string, init?: RequestInit): Promise<T> {
   return fetch(`${baseApiUrl}${endpoint}`, {
     ...init,
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
   }).then(async (res) => {
-    const data = await res.json();
+    let data = null;
+    try {
+      data = await res.json();
+    } catch {}
 
     if (res.ok) {
       return data;
@@ -25,6 +29,14 @@ const api = {
 
   register: (values: loginParams): Promise<User> => {
     return makeRequest('/user/register', { method: 'POST', body: JSON.stringify(values) });
+  },
+
+  getMe: (): Promise<User> => {
+    return makeRequest('/user/me');
+  },
+
+  logout: (): Promise<unknown> => {
+    return makeRequest('/user/logout');
   },
 };
 

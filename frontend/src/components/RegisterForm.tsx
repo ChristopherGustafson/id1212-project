@@ -65,7 +65,7 @@ const RegisterForm: React.FC = () => {
         onChange={registerForm.handleChange}
       />
       <SubmitButton
-        disabled={registerForm.isValidating || !registerForm.isValid}
+        disabled={registerForm.isSubmitting || registerForm.isValidating || !registerForm.isValid}
         variant="contained"
         color="primary"
         onClick={registerForm.submitForm}

@@ -11,7 +11,6 @@ import org.kth.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@CrossOrigin(value = "*")
 @RequestMapping(value = "/user")
 public class UserController {
     public static final String EMAIL_SESSION_ATTRIBUTE = "email";
@@ -61,7 +59,7 @@ public class UserController {
 
     @GetMapping(value = "/me")
     public ResponseEntity<User> getMe(HttpSession session) {
-        String email = (String) session.getAttribute("email");
+        String email = (String) session.getAttribute(EMAIL_SESSION_ATTRIBUTE);
         if (email != null && email != "") {
             Optional<User> userEntry = userRepository.findById(email);
             if (userEntry.isPresent()) {
@@ -74,5 +72,11 @@ public class UserController {
     @GetMapping(path = "/all")
     public @ResponseBody Iterable<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @GetMapping(value = "/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok("Successfully logged out");
     }
 }
