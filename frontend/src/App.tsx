@@ -1,10 +1,13 @@
+import { SnackbarContextProvider } from './components/SnackBar';
 import { AuthContextProvider } from './context/AuthContext';
 import Router from './Router';
 
 const App: React.FC = () => (
-  <AuthContextProvider>
-    <Router />
-  </AuthContextProvider>
+  <SnackbarContextProvider>
+    <AuthContextProvider>
+      <Router />
+    </AuthContextProvider>
+  </SnackbarContextProvider>
 );
 
 export default App;

@@ -59,7 +59,7 @@ public class UserController {
 
     @GetMapping(value = "/me")
     public ResponseEntity<User> getMe(HttpSession session) {
-        String email = (String) session.getAttribute("email");
+        String email = (String) session.getAttribute(EMAIL_SESSION_ATTRIBUTE);
         if (email != null && email != "") {
             Optional<User> userEntry = userRepository.findById(email);
             if (userEntry.isPresent()) {
@@ -72,5 +72,11 @@ public class UserController {
     @GetMapping(path = "/all")
     public @ResponseBody Iterable<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @GetMapping(value = "/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok("Successfully logged out");
     }
 }

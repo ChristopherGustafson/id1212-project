@@ -1,4 +1,6 @@
-import { createContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import SnackbarContext from '../components/SnackBar';
+import api from '../lib/api';
 import { User } from '../types/user';
 
 const initialUser = {
@@ -17,6 +19,7 @@ const initialValue = {
 const AuthContext = createContext(initialValue);
 
 export const AuthContextProvider: React.FC = ({ children }) => {
+  const openSnackbar = useContext(SnackbarContext);
   const [user, setUser] = useState(initialUser);
 
   const login = (newUser: User) => {
@@ -24,8 +27,25 @@ export const AuthContextProvider: React.FC = ({ children }) => {
   };
 
   const logout = () => {
-    setUser(initialUser);
+    api
+      .logout()
+      .then(() => {
+        setUser(initialUser);
+        openSnackbar({ content: 'Successfully logged out', severity: 'success' });
+      })
+      .catch(() => {
+        openSnackbar({ content: "Couldn't log out", severity: 'error' });
+      });
   };
+
+  useEffect(() => {
+    api
+      .getMe()
+      .then((u) => {
+        setUser({ ...u, authenticated: true });
+      })
+      .catch(() => {});
+  }, []);
 
   return <AuthContext.Provider value={{ ...user, login, logout }}>{children}</AuthContext.Provider>;
 };
