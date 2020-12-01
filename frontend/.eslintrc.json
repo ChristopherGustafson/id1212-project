@@ -10,6 +10,9 @@
   "rules": {
     "react/self-closing-comp": "error",
     "no-empty-function": "off",
-    "@typescript-eslint/no-empty-function": "off"
+    "@typescript-eslint/no-empty-function": "off",
+      "prettier/prettier": ["error",{
+        "endOfLine": "auto"}
+      ]
   }
 }
