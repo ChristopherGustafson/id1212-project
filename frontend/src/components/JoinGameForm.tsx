@@ -13,11 +13,11 @@ const initialValues = {
   code: '',
 };
 
-const CreateGameForm: React.FC = () => {
+const JoinGameForm: React.FC = () => {
   const history = useHistory();
   const openSnackbar = useContext(SnackbarContext);
 
-  const createGameForm = useFormik({
+  const joinGameForm = useFormik({
     initialValues: initialValues,
     validateOnMount: true,
     validationSchema: yup.object({
@@ -25,10 +25,10 @@ const CreateGameForm: React.FC = () => {
     }),
     onSubmit: ({ code }) => {
       return api
-        .createGame(code)
-        .then((chessGame) => {
-          history.push(ROUTES.PLAY_GAME, chessGame);
-          openSnackbar({ content: 'Successfully created game', severity: 'success' });
+        .getGame(code)
+        .then(() => {
+          history.push(ROUTES.createPlayUrl(code));
+          openSnackbar({ content: 'Successfully joined game', severity: 'success' });
         })
         .catch((err) => {
           openSnackbar({ content: err.message, severity: 'error' });
@@ -43,25 +43,23 @@ const CreateGameForm: React.FC = () => {
         id="code"
         variant="filled"
         label="Code"
-        value={createGameForm.values.code}
-        error={createGameForm.touched.code && !!createGameForm.errors.code}
-        helperText={createGameForm.touched.code && createGameForm.errors.code}
-        onBlur={createGameForm.handleBlur}
-        onChange={createGameForm.handleChange}
+        value={joinGameForm.values.code}
+        error={joinGameForm.touched.code && !!joinGameForm.errors.code}
+        helperText={joinGameForm.touched.code && joinGameForm.errors.code}
+        onBlur={joinGameForm.handleBlur}
+        onChange={joinGameForm.handleChange}
       />
       <SubmitButton
-        loading={createGameForm.isSubmitting}
+        loading={joinGameForm.isSubmitting}
         color="primary"
-        disabled={
-          createGameForm.isSubmitting || createGameForm.isValidating || !createGameForm.isValid
-        }
-        onClick={createGameForm.submitForm}
+        disabled={joinGameForm.isSubmitting || joinGameForm.isValidating || !joinGameForm.isValid}
+        onClick={joinGameForm.submitForm}
         variant="contained"
       >
-        Create
+        Join
       </SubmitButton>
     </>
   );
 };
 
-export default CreateGameForm;
+export default JoinGameForm;

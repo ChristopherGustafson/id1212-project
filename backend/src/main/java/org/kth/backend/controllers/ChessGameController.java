@@ -2,6 +2,9 @@ package org.kth.backend.controllers;
 
 import java.util.Optional;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+
 import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.Square;
 import com.github.bhlangonijr.chesslib.move.Move;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -26,22 +30,41 @@ public class ChessGameController {
   @Autowired
   private ChessGameRepository chessRepository;
 
-  @GetMapping("/createGame")
-  public ResponseEntity<ChessGame> createChessGame() {
-    ChessGame newGame = new ChessGame();
-    Board newChessboard = new Board();
-    newGame.setChessboard(newChessboard.getFen());
-    newGame.setGameOver(false);
-    newGame.setTurn(newChessboard.getSideToMove().toString());
-    newGame.setTurnCount(1);
-    chessRepository.save(newGame);
+  @PostMapping("/createGame")
+  public ResponseEntity<ChessGame> createChessGame(
+      @Valid @RequestBody @Size(min = 6, message = "Code must be at least 4 characters") String code) {
+    Optional<ChessGame> game = chessRepository.findById(code);
+    if (!game.isPresent()) {
+      ChessGame newGame = new ChessGame();
+      newGame.setCode(code);
+      Board newChessboard = new Board();
+      newGame.setChessboard(newChessboard.getFen());
+      newGame.setGameOver(false);
+      newGame.setTurn(newChessboard.getSideToMove().toString());
+      newGame.setTurnCount(1);
+      chessRepository.save(newGame);
+      return ResponseEntity.ok(newGame);
+    }
 
-    return ResponseEntity.ok(newGame);
+    throw new ResponseStatusException(HttpStatus.CONFLICT, "A game with this code already exists");
+  }
+
+  @GetMapping("/getGame")
+  public ResponseEntity<ChessGame> getGame(@RequestParam("code") String code) {
+    if (!code.isBlank()) {
+      Optional<ChessGame> game = chessRepository.findById(code);
+      if (game.isPresent()) {
+        return ResponseEntity.ok(game.get());
+      }
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find game");
+    }
+
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Code is required");
   }
 
   @PostMapping("/makeMove")
   public ResponseEntity<ChessGame> makeMove(@RequestBody ChessGameDTO chessDto) {
-    Optional<ChessGame> game = chessRepository.findById(chessDto.id);
+    Optional<ChessGame> game = chessRepository.findById(chessDto.code);
     if (game.isPresent()) {
       ChessGame currentGame = game.get();
       Board currentBoard = new Board();

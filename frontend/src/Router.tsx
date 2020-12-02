@@ -5,6 +5,7 @@ import AuthContext from './context/AuthContext';
 
 import * as ROUTES from './lib/routes';
 import CreateGame from './views/CreateGame';
+import Dashboard from './views/Dashboard';
 import JoinGame from './views/JoinGame';
 
 import Login from './views/Login';
@@ -14,6 +15,7 @@ const AuthRoutes = () => (
     <Switch>
       <Route path={ROUTES.JOIN_GAME} component={JoinGame} />
       <Route path={ROUTES.CREATE_GAME} component={CreateGame} />
+      <Route path={ROUTES.PLAY_GAME} component={Dashboard} />
       <Route>
         <Redirect to={ROUTES.JOIN_GAME} />
       </Route>

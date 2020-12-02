@@ -1,5 +1,5 @@
 export interface ChessGame {
-  id: number;
+  code: string;
   chessboard: string;
   turn: string;
   gameOver: boolean;
