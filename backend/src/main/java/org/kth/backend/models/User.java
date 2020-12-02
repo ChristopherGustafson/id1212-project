@@ -9,13 +9,13 @@ public class User {
     @Id
     private String email;
 
-    private String password;
+    private byte[] password;
 
     public String getEmail() {
         return email;
     }
 
-    public String getPassword() {
+    public byte[] getPassword() {
         return password;
     }
 
@@ -23,7 +23,7 @@ public class User {
         this.email = email;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(byte[] password) {
         this.password = password;
     }
 }
