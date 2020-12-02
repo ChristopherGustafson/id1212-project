@@ -1,8 +1,7 @@
-import { useState, useEffect, useContext } from 'react';
+import { useContext } from 'react';
 import Chessboard from 'chessboardjsx';
 import { styled } from '@material-ui/core';
 import api from '../lib/api';
-import { ChessGame } from '../types/chessGame';
 import SnackbarContext from './SnackBar';
 import ChessContext from '../context/ChessContext';
 
@@ -18,17 +17,17 @@ const initialChessGame: ChessGame = {
 
 const ChessBoard: React.FC = () => {
   //const [chessGame, setChessGame] = useState(initialChessGame];
-  const { id, chessboard, updateGame } = useContext(ChessContext);
+  const { code, chessboard, updateGame } = useContext(ChessContext);
   const openSnackbar = useContext(SnackbarContext);
 
-  useEffect(() => {
-    api
-      .createGame()
-      .then(updateGame)
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+  // useEffect(() => {
+  //   api
+  //     .createGame()
+  //     .then(updateGame)
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // }, []);
 
   //Returns from/to square as a1, a2, e1...
   const onDrop = ({
@@ -40,7 +39,7 @@ const ChessBoard: React.FC = () => {
   }) => {
     //const { id } = chessGame;
     api
-      .makeMove({ id, from: sourceSquare.toUpperCase(), to: targetSquare.toUpperCase() })
+      .makeMove({ code, from: sourceSquare.toUpperCase(), to: targetSquare.toUpperCase() })
       .then((game) => {
         console.log(game);
         updateGame(game);

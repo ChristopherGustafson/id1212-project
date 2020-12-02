@@ -4,7 +4,7 @@ export type loginParams = Required<{
 }>;
 
 export type chessMoveParams = Required<{
-  id: number;
+  code: string;
   from: string;
   to: string;
 }>;

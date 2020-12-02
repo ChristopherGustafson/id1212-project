@@ -1,9 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
+import Loading from '../components/Loading';
+import SnackbarContext from '../components/SnackBar';
+import api from '../lib/api';
+
 import { ChessGame } from '../types/chessGame';
 
 const initialChessGame: ChessGame = {
-  id: 0,
+  code: '',
   chessboard: 'rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1',
   turn: '',
   gameOver: false,
@@ -17,15 +21,34 @@ const initialValue = {
 
 const ChessContext = createContext(initialValue);
 
-export const ChessContextProvider: React.FC = ({ children }) => {
+interface Props {
+  code: string;
+}
+
+export const ChessContextProvider: React.FC<Props> = ({ children, code }) => {
+  const openSnackbar = useContext(SnackbarContext);
+  const [isLoading, setIsLoading] = useState(true);
   const [chessGame, setChessGame] = useState(initialChessGame);
+
+  useEffect(() => {
+    api
+      .getGame(code)
+      .then((newGame) => {
+        setChessGame(newGame);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        openSnackbar({ content: err.message, severity: 'error' });
+      });
+  }, [openSnackbar, code]);
 
   const updateGame = (newChessGame: ChessGame) => {
     setChessGame(newChessGame);
-    console.log('updated game');
   };
 
-  return (
+  return isLoading ? (
+    <Loading />
+  ) : (
     <ChessContext.Provider value={{ ...chessGame, updateGame }}>{children}</ChessContext.Provider>
   );
 };

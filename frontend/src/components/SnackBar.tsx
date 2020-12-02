@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { IconButton, Snackbar } from '@material-ui/core';
 import { Close as CloseIcon } from '@material-ui/icons';
@@ -17,10 +17,10 @@ export const SnackbarContextProvider: React.FC = ({ children }) => {
     setIsOpen(false);
   };
 
-  const open = (newMessage: Message) => {
+  const open = useCallback((newMessage: Message) => {
     setMessage(newMessage);
     handleOpen();
-  };
+  }, []);
 
   const handleOpen = () => {
     setIsOpen(true);

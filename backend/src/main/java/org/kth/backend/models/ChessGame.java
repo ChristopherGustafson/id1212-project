@@ -1,24 +1,25 @@
 package org.kth.backend.models;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
 public class ChessGame {
 
-  private @Id @GeneratedValue Long id;
-  private String chessboard;
-  String turn;
-  boolean gameOver;
-  int turnCount;
+  @Id
+  private String code;
 
-  public Long getId() {
-    return this.id;
+  private String chessboard;
+  private String turn;
+  private boolean gameOver;
+  private int turnCount;
+
+  public String getCode() {
+    return this.code;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public void setCode(String code) {
+    this.code = code;
   }
 
   public String getChessboard() {

@@ -40,8 +40,12 @@ const api = {
     return makeRequest('/user/logout');
   },
 
-  createGame: (): Promise<ChessGame> => {
-    return makeRequest('/chess/createGame');
+  createGame: (code: string): Promise<ChessGame> => {
+    return makeRequest('/chess/createGame', { method: 'POST', body: code });
+  },
+
+  getGame: (code: string): Promise<ChessGame> => {
+    return makeRequest(`/chess/getGame?code=${code}`);
   },
 
   makeMove: (values: chessMoveParams): Promise<ChessGame> => {
