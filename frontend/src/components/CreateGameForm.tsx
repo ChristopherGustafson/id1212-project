@@ -26,8 +26,8 @@ const CreateGameForm: React.FC = () => {
     onSubmit: ({ code }) => {
       return api
         .createGame(code)
-        .then((chessGame) => {
-          history.push(ROUTES.PLAY_GAME, chessGame);
+        .then(() => {
+          history.push(ROUTES.createPlayUrl(code));
           openSnackbar({ content: 'Successfully created game', severity: 'success' });
         })
         .catch((err) => {
