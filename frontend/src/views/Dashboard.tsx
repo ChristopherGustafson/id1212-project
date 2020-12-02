@@ -1,5 +1,12 @@
+import ChessBoard from '../components/ChessBoard';
+import { ChessContextProvider } from '../context/ChessContext';
+
 const Dashboard: React.FC = () => {
-  return <div>Dashboard</div>;
+  return (
+    <ChessContextProvider>
+      <ChessBoard />
+    </ChessContextProvider>
+  );
 };
 
 export default Dashboard;

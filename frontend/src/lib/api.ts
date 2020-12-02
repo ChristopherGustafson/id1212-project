@@ -1,5 +1,6 @@
-import { loginParams } from '../types/api';
+import { loginParams, chessMoveParams } from '../types/api';
 import { User } from '../types/user';
+import { ChessGame } from '../types/chessGame';
 
 const baseApiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
@@ -37,6 +38,14 @@ const api = {
 
   logout: (): Promise<unknown> => {
     return makeRequest('/user/logout');
+  },
+
+  createGame: (): Promise<ChessGame> => {
+    return makeRequest('/chess/createGame');
+  },
+
+  makeMove: (values: chessMoveParams): Promise<ChessGame> => {
+    return makeRequest('/chess/makeMove', { method: 'POST', body: JSON.stringify(values) });
   },
 };
 
