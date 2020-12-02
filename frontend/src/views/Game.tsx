@@ -6,7 +6,7 @@ interface MatchProps {
   code: string;
 }
 
-const Dashboard: React.FC = () => {
+const Game: React.FC = () => {
   const match = useRouteMatch<MatchProps>();
 
   return (
@@ -16,4 +16,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default Game;
