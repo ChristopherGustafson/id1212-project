@@ -2,10 +2,11 @@ import { useContext } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-import { Button, styled, TextField, Typography } from '@material-ui/core';
+import { TextField, Typography } from '@material-ui/core';
 import AuthContext from '../context/AuthContext';
 import api from '../lib/api';
 import SnackbarContext from './SnackBar';
+import SubmitButton from './SubmitButton';
 
 const initialValues = {
   email: '',
@@ -19,6 +20,7 @@ const LoginForm: React.FC = () => {
   const loginForm = useFormik({
     validateOnMount: true,
     initialValues: initialValues,
+    isInitialValid: false,
     validationSchema: yup.object({
       email: yup.string().email('Invalid email').required('Required'),
       password: yup.string().min(6, 'At least 6 characters').required('Required'),
@@ -69,16 +71,12 @@ const LoginForm: React.FC = () => {
         variant="contained"
         color="primary"
         onClick={loginForm.submitForm}
+        loading={loginForm.isSubmitting}
       >
         Login
       </SubmitButton>
     </>
   );
 };
-
-const SubmitButton = styled(Button)({
-  marginTop: 10,
-  width: '100%',
-});
 
 export default LoginForm;

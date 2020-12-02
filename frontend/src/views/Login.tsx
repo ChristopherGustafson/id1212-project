@@ -26,7 +26,7 @@ const Login: React.FC = () => {
 
   return (
     <Root>
-      <Paper>
+      <Card>
         <Tabs onChange={onChange} value={tab} variant="fullWidth" indicatorColor="primary">
           <Tab label="Login" />
           <Tab label="Register" />
@@ -39,7 +39,7 @@ const Login: React.FC = () => {
             <RegisterForm />
           </TabPanel>
         </Content>
-      </Paper>
+      </Card>
     </Root>
   );
 };
@@ -53,6 +53,10 @@ const Root = styled('div')({
 
 const Content = styled('div')({
   padding: '2rem',
+});
+
+const Card = styled(Paper)({
+  overflow: 'hidden',
 });
 
 export default Login;
