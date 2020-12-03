@@ -37,7 +37,7 @@ public class ChessGameController {
 
   @PostMapping("/createGame")
   public ResponseEntity<ChessGame> createChessGame(
-      @Valid @RequestParam("code") @Size(min = 6, message = "Code must be at least 4 characters") String code, @RequestParam("user") String user) {
+      @Valid @RequestBody @Size(min = 6, message = "Code must be at least 4 characters") String code) {
     Optional<ChessGame> game = chessRepository.findById(code);
     if (!game.isPresent()) {
       ChessGame newGame = new ChessGame();
@@ -47,8 +47,8 @@ public class ChessGameController {
       newGame.setGameOver(false);
       newGame.setTurn(newChessboard.getSideToMove().toString());
       newGame.setTurnCount(1);
-      System.out.println("Setting white player to " + user);
-      newGame.setPlayerWhite(user);
+      //System.out.println("Setting white player to " + user);
+      //newGame.setPlayerWhite(user);
       chessRepository.save(newGame);
       return ResponseEntity.ok(newGame);
     }

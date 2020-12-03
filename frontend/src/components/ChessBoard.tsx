@@ -48,7 +48,7 @@ const ChessBoard: React.FC = () => {
     stompClient.current.connect({}, (frame) => {
       console.log('Connected ' + frame);
       stompClient.current.subscribe('/chess/start', handleStart);
-      stompClient.current.subscribe('/chess/move', handleMove);
+      stompClient.current.subscribe('/chess/msg', handleMove);
       openSnackbar({ content: 'Waiting for other player', severity: 'info' });
     });
   }, []);
@@ -61,7 +61,7 @@ const ChessBoard: React.FC = () => {
     switch (state) {
       case 'Valid move':
         console.log('Valid move');
-        setMyTurn(!myTurn);
+        //setMyTurn(!myTurn);
         return updateGame(game);
       case 'Invalid move':
         openSnackbar({ content: 'Invalid move', severity: 'error' });
@@ -81,7 +81,7 @@ const ChessBoard: React.FC = () => {
     switch (state) {
       case 'Valid move':
         console.log('Valid move');
-        setMyTurn(!myTurn);
+        //setMyTurn(!myTurn);
         return updateGame(game);
       case 'Invalid move':
         openSnackbar({ content: 'Invalid move', severity: 'error' });
