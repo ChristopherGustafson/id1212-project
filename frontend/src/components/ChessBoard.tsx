@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 import Chessboard from 'chessboardjsx';
-import { styled } from '@material-ui/core';
+import { styled, useTheme } from '@material-ui/core';
 import api from '../lib/api';
 import SnackbarContext from './SnackBar';
 import ChessContext from '../context/ChessContext';
+import { BreakpointValues } from '@material-ui/core/styles/createBreakpoints';
 
 /*
 const initialChessGame: ChessGame = {
@@ -15,8 +16,26 @@ const initialChessGame: ChessGame = {
 };
 */
 
+const SMALL_SCREEN_PADDING = 100;
+const SMALL_SCREEN_HEIGHT_PADDING = 100;
+
+const LARGE_SCREEN_PADDING = 400;
+const LARGE_SCREEN_HEIGHT_PADDING = 200;
+
+const calcWidth = (breakpoints: BreakpointValues): typeof Chessboard.prototype.props.calcWidth => ({
+  screenWidth,
+  screenHeight,
+}) => {
+  if (screenWidth <= breakpoints.sm) {
+    return Math.min(screenWidth - SMALL_SCREEN_PADDING, screenHeight - SMALL_SCREEN_HEIGHT_PADDING);
+  }
+  return Math.min(screenWidth - LARGE_SCREEN_PADDING, screenHeight - LARGE_SCREEN_HEIGHT_PADDING);
+};
+
 const ChessBoard: React.FC = () => {
   //const [chessGame, setChessGame] = useState(initialChessGame];
+  const theme = useTheme();
+
   const { code, chessboard, updateGame } = useContext(ChessContext);
   const openSnackbar = useContext(SnackbarContext);
 
@@ -51,16 +70,20 @@ const ChessBoard: React.FC = () => {
 
   return (
     <Root>
-      <Chessboard onDrop={onDrop} position={chessboard} />
+      <Chessboard
+        calcWidth={calcWidth(theme.breakpoints.values)}
+        onDrop={onDrop}
+        position={chessboard}
+      />
     </Root>
   );
 };
 
-const Root = styled('div')({
-  height: '100%',
+const Root = styled('div')(({ theme }) => ({
+  height: `calc(100% - ${theme.mixins.toolbar.height})`,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-});
+}));
 
 export default ChessBoard;
