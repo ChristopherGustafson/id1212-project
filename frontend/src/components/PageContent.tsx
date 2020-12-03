@@ -15,6 +15,7 @@ const PageContent: React.FC<Props> = ({ children, title }) => (
 
 const PageCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
+  margin: theme.spacing(3),
 }));
 
 const ContentDivider = styled(Divider)({

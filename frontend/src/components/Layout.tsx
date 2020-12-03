@@ -12,6 +12,7 @@ import {
   ListItemText,
   makeStyles,
   styled,
+  SwipeableDrawer,
   Toolbar,
 } from '@material-ui/core';
 import { AddBox, ExitToApp, Games, Menu } from '@material-ui/icons';
@@ -42,11 +43,15 @@ const Layout: React.FC = ({ children }) => {
 
   const navigate = (route: string) => () => {
     history.push(route);
-    handleDrawerToggle();
+    handleDrawerClose();
   };
 
-  const handleDrawerToggle = () => {
-    setMobileOpen((prevState) => !prevState);
+  const handleDrawerClose = () => {
+    setMobileOpen(false);
+  };
+
+  const handleDrawerOpen = () => {
+    setMobileOpen(true);
   };
 
   const NavigationList: React.FC = () => (
@@ -83,7 +88,7 @@ const Layout: React.FC = ({ children }) => {
       <Hidden smUp>
         <AppBar position="fixed">
           <Toolbar>
-            <IconButton color="inherit" edge="start" onClick={handleDrawerToggle}>
+            <IconButton color="inherit" edge="start" onClick={handleDrawerOpen}>
               <Menu />
             </IconButton>
           </Toolbar>
@@ -99,17 +104,18 @@ const Layout: React.FC = ({ children }) => {
           </Drawer>
         </Hidden>
         <Hidden smUp implementation="css">
-          <Drawer
+          <SwipeableDrawer
             variant="temporary"
             open={mobileOpen}
             ModalProps={{ keepMounted: true }}
             classes={{ root: classes.drawer, paper: classes.drawerPaper }}
-            onClose={handleDrawerToggle}
+            onClose={handleDrawerClose}
+            onOpen={handleDrawerOpen}
           >
             <div className={classes.toolbar} />
             <Divider />
             <NavigationList />
-          </Drawer>
+          </SwipeableDrawer>
         </Hidden>
       </nav>
       <Content>

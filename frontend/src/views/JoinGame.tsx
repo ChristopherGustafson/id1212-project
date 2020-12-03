@@ -4,11 +4,9 @@ import JoinGameForm from '../components/JoinGameForm';
 
 const JoinGame: React.FC = () => {
   return (
-    <>
-      <PageContent title="Join game">
-        <JoinGameForm />
-      </PageContent>
-    </>
+    <PageContent title="Join game">
+      <JoinGameForm />
+    </PageContent>
   );
 };
 
