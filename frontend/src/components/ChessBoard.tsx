@@ -80,7 +80,7 @@ const ChessBoard: React.FC = () => {
 };
 
 const Root = styled('div')(({ theme }) => ({
-  height: `calc(100% - ${theme.mixins.toolbar.height})`,
+  height: `calc(100% - ${theme.mixins.toolbar.minHeight}px)`,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
