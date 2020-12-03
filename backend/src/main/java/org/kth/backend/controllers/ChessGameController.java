@@ -9,12 +9,16 @@ import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.Square;
 import com.github.bhlangonijr.chesslib.move.Move;
 
-import org.kth.backend.dto.ChessGameDTO;
+import org.kth.backend.dto.ChessMoveDTO;
+import org.kth.backend.dto.ChessStateDTO;
 import org.kth.backend.models.ChessGame;
 import org.kth.backend.repositories.ChessGameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/chess")
+@Controller
 public class ChessGameController {
 
   @Autowired
@@ -32,7 +37,7 @@ public class ChessGameController {
 
   @PostMapping("/createGame")
   public ResponseEntity<ChessGame> createChessGame(
-      @Valid @RequestBody @Size(min = 6, message = "Code must be at least 4 characters") String code) {
+      @Valid @RequestParam("code") @Size(min = 6, message = "Code must be at least 4 characters") String code, @RequestParam("user") String user) {
     Optional<ChessGame> game = chessRepository.findById(code);
     if (!game.isPresent()) {
       ChessGame newGame = new ChessGame();
@@ -42,6 +47,8 @@ public class ChessGameController {
       newGame.setGameOver(false);
       newGame.setTurn(newChessboard.getSideToMove().toString());
       newGame.setTurnCount(1);
+      System.out.println("Setting white player to " + user);
+      newGame.setPlayerWhite(user);
       chessRepository.save(newGame);
       return ResponseEntity.ok(newGame);
     }
@@ -58,12 +65,13 @@ public class ChessGameController {
       }
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find game");
     }
-
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Code is required");
   }
 
-  @PostMapping("/makeMove")
-  public ResponseEntity<ChessGame> makeMove(@RequestBody ChessGameDTO chessDto) {
+  //@PostMapping("/makeMove")
+  @MessageMapping("/makeMove")
+  @SendTo("/chess/msg")
+  public ChessStateDTO makeMove(ChessMoveDTO chessDto) {
     Optional<ChessGame> game = chessRepository.findById(chessDto.code);
     if (game.isPresent()) {
       ChessGame currentGame = game.get();
@@ -89,14 +97,14 @@ public class ChessGameController {
             currentGame.setTurnCount(currentGame.getTurnCount() + 1);
 
             chessRepository.save(currentGame);
-            return ResponseEntity.ok(currentGame);
+            return new ChessStateDTO("Valid move", currentGame);
           }
         }
 
       } catch (Exception e) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid move");
+        return(new ChessStateDTO("Invalid move", currentGame));
       }
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid move");
+      return(new ChessStateDTO("Invalid move", currentGame));
     }
     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This game wasn't found");
   }
