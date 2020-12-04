@@ -13,6 +13,8 @@ public class ChessGame {
   private String turn;
   private boolean gameOver;
   private int turnCount;
+  private String playerWhite;
+  private String playerBlack;
 
   public String getCode() {
     return this.code;
@@ -54,4 +56,19 @@ public class ChessGame {
     this.turnCount = turnCount;
   }
 
+  public String getPlayerWhite() {
+    return this.playerWhite;
+  }
+
+  public void setPlayerWhite(String playerWhite) {
+    this.playerWhite = playerWhite;
+  }
+
+  public String getPlayerBlack() {
+    return this.playerBlack;
+  }
+
+  public void setPlayerBlack(String playerBlack) {
+    this.playerBlack = playerBlack;
+  }
 }

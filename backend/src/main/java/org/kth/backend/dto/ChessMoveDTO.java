@@ -1,9 +1,6 @@
 package org.kth.backend.dto;
 
-public class ChessGameDTO {
-  public String code;
-
+public class ChessMoveDTO {
   public String to;
   public String from;
-
 }

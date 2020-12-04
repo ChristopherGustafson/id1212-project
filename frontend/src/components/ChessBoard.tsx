@@ -1,10 +1,14 @@
-import { useContext } from 'react';
-import Chessboard from 'chessboardjsx';
 import { styled, useTheme } from '@material-ui/core';
-import api from '../lib/api';
-import SnackbarContext from './SnackBar';
-import ChessContext from '../context/ChessContext';
 import { BreakpointValues } from '@material-ui/core/styles/createBreakpoints';
+import Chessboard from 'chessboardjsx';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { Message } from 'stompjs';
+import ChessContext from '../context/ChessContext';
+import SnackbarContext from './SnackBar';
+import Stomp from 'stompjs';
+import { ChessGame } from '../types/chessGame';
+import AuthContext from '../context/AuthContext';
+import Loading from './Loading';
 
 /*
 const initialChessGame: ChessGame = {
@@ -32,49 +36,73 @@ const calcWidth = (breakpoints: BreakpointValues): typeof Chessboard.prototype.p
   return Math.min(screenWidth - LARGE_SCREEN_PADDING, screenHeight - LARGE_SCREEN_HEIGHT_PADDING);
 };
 
+const baseWSUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8080';
+
 const ChessBoard: React.FC = () => {
-  //const [chessGame, setChessGame] = useState(initialChessGame];
   const theme = useTheme();
 
+  const [myTurn, setMyTurn] = useState(false);
+  const [myColor, setColor] = useState('');
   const { code, chessboard, updateGame } = useContext(ChessContext);
+  const { email } = useContext(AuthContext);
   const openSnackbar = useContext(SnackbarContext);
+  const stompClient = useRef(Stomp.over(new WebSocket(`${baseWSUrl}/connect`)));
 
-  // useEffect(() => {
-  //   api
-  //     .createGame()
-  //     .then(updateGame)
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, []);
+  useEffect(() => {
+    const socket = new WebSocket(`${baseWSUrl}/connect`);
+    stompClient.current = Stomp.over(socket);
 
-  //Returns from/to square as a1, a2, e1...
-  const onDrop = ({
-    sourceSquare,
-    targetSquare,
-  }: {
-    sourceSquare: string;
-    targetSquare: string;
-  }) => {
-    //const { id } = chessGame;
-    api
-      .makeMove({ code, from: sourceSquare.toUpperCase(), to: targetSquare.toUpperCase() })
-      .then((game) => {
-        console.log(game);
-        updateGame(game);
-      })
-      .catch((error) => {
-        openSnackbar({ content: error.message, severity: 'error' });
-      });
+    stompClient.current.connect({ user: email }, (frame) => {
+      //stompClient.current.subscribe('/chess/start', handleStart);
+      stompClient.current.subscribe(`/chess/${code}`, handleMove);
+      stompClient.current.subscribe(`/chess/${code}/${email}`, handleInit);
+      stompClient.current.send(`/app/${code}/${email}/init`, { user: email }, '');
+    });
+  }, []);
+
+  const handleInit = (initMessage: Message) => {
+    const { color, myTurn } = JSON.parse(initMessage.body);
+    setColor(color.toLowerCase());
+    setMyTurn(myTurn);
   };
 
+  const handleMove = (gameState: Message) => {
+    const { state, game } = JSON.parse(gameState.body);
+
+    switch (state) {
+      case 'Valid move':
+        setMyTurn((prevState) => !prevState);
+        return updateGame(game);
+      case 'Invalid move':
+        openSnackbar({ content: 'Invalid move', severity: 'error' });
+        return game;
+      default:
+        openSnackbar({ content: 'Unkown message', severity: 'error' });
+    }
+  };
+
+  const onDrop: typeof Chessboard.prototype.props.onDrop = ({ sourceSquare, targetSquare }) => {
+    stompClient.current.send(
+      `/app/${code}/makeMove`,
+      {
+        user: email,
+      },
+      JSON.stringify({ from: sourceSquare.toUpperCase(), to: targetSquare.toUpperCase() })
+    );
+  };
   return (
     <Root>
-      <Chessboard
-        calcWidth={calcWidth(theme.breakpoints.values)}
-        onDrop={onDrop}
-        position={chessboard}
-      />
+      {myColor === '' ? (
+        <Loading />
+      ) : (
+        <Chessboard
+          onDrop={onDrop}
+          position={chessboard}
+          draggable={myTurn}
+          allowDrag={({ piece }) => piece[0] === myColor[0]}
+          calcWidth={calcWidth(theme.breakpoints.values)}
+        />
+      )}
     </Root>
   );
 };
