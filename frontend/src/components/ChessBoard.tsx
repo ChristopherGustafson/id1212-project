@@ -5,9 +5,13 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { Message } from 'stompjs';
 import ChessContext from '../context/ChessContext';
 import SnackbarContext from './SnackBar';
+import DialogContext from './Dialog';
 import Stomp from 'stompjs';
 import AuthContext from '../context/AuthContext';
 import Loading from './Loading';
+import { RouterSharp } from '@material-ui/icons';
+
+import * as ROUTES from '../lib/routes';
 
 const SMALL_SCREEN_PADDING = 100;
 const SMALL_SCREEN_HEIGHT_PADDING = 100;
@@ -35,6 +39,7 @@ const ChessBoard: React.FC = () => {
   const { code, chessboard, updateGame } = useContext(ChessContext);
   const { email } = useContext(AuthContext);
   const openSnackbar = useContext(SnackbarContext);
+  const openDialog = useContext(DialogContext);
   const stompClient = useRef(Stomp.over(new WebSocket(`${baseWSUrl}/connect`)));
 
   useEffect(() => {
@@ -56,16 +61,21 @@ const ChessBoard: React.FC = () => {
 
   const handleMove = (gameState: Message) => {
     const { state, game } = JSON.parse(gameState.body);
-
-    switch (state) {
-      case 'Valid move':
-        setMyTurn((prevState) => !prevState);
-        return updateGame(game);
-      case 'Invalid move':
-        openSnackbar({ content: 'Invalid move', severity: 'error' });
-        return game;
-      default:
-        openSnackbar({ content: 'Unkown message', severity: 'error' });
+    if (game.gameOver) {
+      setMyTurn(false);
+      openDialog({ content: state, redirect: ROUTES.CREATE_GAME });
+      return updateGame(game);
+    } else {
+      switch (state) {
+        case 'Valid move':
+          setMyTurn((prevState) => !prevState);
+          return updateGame(game);
+        case 'Invalid move':
+          openSnackbar({ content: 'Invalid move', severity: 'error' });
+          return game;
+        default:
+          openSnackbar({ content: 'Unkown message', severity: 'error' });
+      }
     }
   };
 

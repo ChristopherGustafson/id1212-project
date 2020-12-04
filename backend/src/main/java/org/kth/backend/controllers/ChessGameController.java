@@ -22,7 +22,6 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,9 +38,6 @@ public class ChessGameController {
 
   @Autowired
   private ChessGameRepository chessRepository;
-
-  @Autowired
-  private SimpMessagingTemplate messageSender;
 
   @PostMapping("/createGame")
   public ResponseEntity<ChessGame> createChessGame(
@@ -123,12 +119,16 @@ public class ChessGameController {
         // Check if move is legal
         if (currentBoard.legalMoves().contains(attemptedMove)) {
           // Check if move is valid, if it is do the move
-          if (currentBoard.doMove(new Move(Square.valueOf(chessDto.from), Square.valueOf(chessDto.to)), true)) {
-
+          if (currentBoard.doMove(new Move(Square.valueOf(chessDto.from), Square.valueOf(chessDto.to)))) {
+            
             if (currentBoard.isMated()) {
               currentGame.setGameOver(true);
+              currentGame.setChessboard(currentBoard.getFen());
+              return new ChessStateDTO(User + " wins the game", currentGame);
             } else if (currentBoard.isDraw()) {
               currentGame.setGameOver(true);
+              currentGame.setChessboard(currentBoard.getFen());
+              return new ChessStateDTO("Game ends in a draw", currentGame);
             } else if (currentBoard.isKingAttacked()) {
               // Handle king attacked
             }
@@ -142,8 +142,10 @@ public class ChessGameController {
         }
 
       } catch (Exception e) {
+        System.out.println("Error");
         return(new ChessStateDTO("Invalid move", currentGame));
       }
+      System.out.println("No error");
       return(new ChessStateDTO("Invalid move", currentGame));
     }
     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This game wasn't found");
