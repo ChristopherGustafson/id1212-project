@@ -42,7 +42,6 @@ const ChessBoard: React.FC = () => {
     stompClient.current = Stomp.over(socket);
 
     stompClient.current.connect({ user: email }, (frame) => {
-      //stompClient.current.subscribe('/chess/start', handleStart);
       stompClient.current.subscribe(`/chess/${code}`, handleMove);
       stompClient.current.subscribe(`/chess/${code}/${email}`, handleInit);
       stompClient.current.send(`/app/${code}/${email}/init`, { user: email }, '');
