@@ -6,19 +6,8 @@ import { Message } from 'stompjs';
 import ChessContext from '../context/ChessContext';
 import SnackbarContext from './SnackBar';
 import Stomp from 'stompjs';
-import { ChessGame } from '../types/chessGame';
 import AuthContext from '../context/AuthContext';
 import Loading from './Loading';
-
-/*
-const initialChessGame: ChessGame = {
-  id: 0,
-  chessboard: 'rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1',
-  turn: '',
-  gameOver: false,
-  turnCount: 0,
-};
-*/
 
 const SMALL_SCREEN_PADDING = 100;
 const SMALL_SCREEN_HEIGHT_PADDING = 100;
