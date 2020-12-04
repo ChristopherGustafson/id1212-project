@@ -6,6 +6,9 @@ import { Message } from 'stompjs';
 import ChessContext from '../context/ChessContext';
 import SnackbarContext from './SnackBar';
 import Stomp from 'stompjs';
+import { ChessGame } from '../types/chessGame';
+import AuthContext from '../context/AuthContext';
+import Loading from './Loading';
 
 /*
 const initialChessGame: ChessGame = {
@@ -33,55 +36,42 @@ const calcWidth = (breakpoints: BreakpointValues): typeof Chessboard.prototype.p
   return Math.min(screenWidth - LARGE_SCREEN_PADDING, screenHeight - LARGE_SCREEN_HEIGHT_PADDING);
 };
 
+const baseWSUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8080';
+
 const ChessBoard: React.FC = () => {
   const theme = useTheme();
 
   const [myTurn, setMyTurn] = useState(false);
+  const [myColor, setColor] = useState('');
   const { code, chessboard, updateGame } = useContext(ChessContext);
+  const { email } = useContext(AuthContext);
   const openSnackbar = useContext(SnackbarContext);
-  const stompClient = useRef(Stomp.over(new WebSocket('ws://localhost:8080/connect')));
+  const stompClient = useRef(Stomp.over(new WebSocket(`${baseWSUrl}/connect`)));
 
   useEffect(() => {
-    const socket = new WebSocket('ws://localhost:8080/connect');
+    const socket = new WebSocket(`${baseWSUrl}/connect`);
     stompClient.current = Stomp.over(socket);
 
-    stompClient.current.connect({}, (frame) => {
-      console.log('Connected ' + frame);
-      stompClient.current.subscribe('/chess/start', handleStart);
-      stompClient.current.subscribe('/chess/msg', handleMove);
-      openSnackbar({ content: 'Waiting for other player', severity: 'info' });
+    stompClient.current.connect({ user: email }, (frame) => {
+      //stompClient.current.subscribe('/chess/start', handleStart);
+      stompClient.current.subscribe(`/chess/${code}`, handleMove);
+      stompClient.current.subscribe(`/chess/${code}/${email}`, handleInit);
+      stompClient.current.send(`/app/${code}/${email}/init`, { user: email }, '');
     });
   }, []);
 
-  const handleStart = (gameState: Message) => {
-    console.log('handling move');
-    console.log(JSON.parse(gameState.body));
-    const { state, game } = JSON.parse(gameState.body);
-
-    switch (state) {
-      case 'Valid move':
-        console.log('Valid move');
-        //setMyTurn(!myTurn);
-        return updateGame(game);
-      case 'Invalid move':
-        openSnackbar({ content: 'Invalid move', severity: 'error' });
-        return game;
-      default:
-        openSnackbar({ content: 'Unkown message', severity: 'error' });
-    }
-
-    //return updateGame(game);
+  const handleInit = (initMessage: Message) => {
+    const { color, myTurn } = JSON.parse(initMessage.body);
+    setColor(color.toLowerCase());
+    setMyTurn(myTurn);
   };
 
   const handleMove = (gameState: Message) => {
-    console.log('handling move');
-    console.log(JSON.parse(gameState.body));
     const { state, game } = JSON.parse(gameState.body);
 
     switch (state) {
       case 'Valid move':
-        console.log('Valid move');
-        //setMyTurn(!myTurn);
+        setMyTurn((prevState) => !prevState);
         return updateGame(game);
       case 'Invalid move':
         openSnackbar({ content: 'Invalid move', severity: 'error' });
@@ -89,37 +79,30 @@ const ChessBoard: React.FC = () => {
       default:
         openSnackbar({ content: 'Unkown message', severity: 'error' });
     }
-
-    //return updateGame(game);
   };
 
-  //Returns from/to square as a1, a2, e1...
-  const onDrop = ({
-    sourceSquare,
-    targetSquare,
-  }: {
-    sourceSquare: string;
-    targetSquare: string;
-  }) => {
-    console.log('here');
-    if (typeof stompClient !== 'undefined') {
-      stompClient.current.send(
-        '/app/makeMove',
-        {},
-        JSON.stringify({ code, from: sourceSquare.toUpperCase(), to: targetSquare.toUpperCase() })
-      );
-    }
-    console.log(stompClient);
+  const onDrop: typeof Chessboard.prototype.props.onDrop = ({ sourceSquare, targetSquare }) => {
+    stompClient.current.send(
+      `/app/${code}/makeMove`,
+      {
+        user: email,
+      },
+      JSON.stringify({ from: sourceSquare.toUpperCase(), to: targetSquare.toUpperCase() })
+    );
   };
-
   return (
     <Root>
-      <Chessboard
-        onDrop={onDrop}
-        position={chessboard}
-        draggable={myTurn}
-        calcWidth={calcWidth(theme.breakpoints.values)}
-      />
+      {myColor === '' ? (
+        <Loading />
+      ) : (
+        <Chessboard
+          onDrop={onDrop}
+          position={chessboard}
+          draggable={myTurn}
+          allowDrag={({ piece }) => piece[0] === myColor[0]}
+          calcWidth={calcWidth(theme.breakpoints.values)}
+        />
+      )}
     </Root>
   );
 };
