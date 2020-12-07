@@ -22,7 +22,6 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,9 +38,6 @@ public class ChessGameController {
 
   @Autowired
   private ChessGameRepository chessRepository;
-
-  @Autowired
-  private SimpMessagingTemplate messageSender;
 
   @PostMapping("/createGame")
   public ResponseEntity<ChessGame> createChessGame(
@@ -127,8 +123,12 @@ public class ChessGameController {
 
             if (currentBoard.isMated()) {
               currentGame.setGameOver(true);
+              currentGame.setChessboard(currentBoard.getFen());
+              return new ChessStateDTO(User + " wins the game", currentGame);
             } else if (currentBoard.isDraw()) {
               currentGame.setGameOver(true);
+              currentGame.setChessboard(currentBoard.getFen());
+              return new ChessStateDTO("Game ends in a draw", currentGame);
             } else if (currentBoard.isKingAttacked()) {
               // Handle king attacked
             }

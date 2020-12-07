@@ -6,7 +6,8 @@ import { ChessInstance, Square } from 'chess.js';
 import Loading from '../components/Loading';
 import SnackbarContext from '../components/SnackBar';
 import api from '../lib/api';
-
+import DialogContext from '../components/Dialog';
+import * as ROUTES from '../lib/routes';
 import { ChessGame } from '../types/chessGame';
 import AuthContext from './AuthContext';
 
@@ -57,6 +58,7 @@ interface Props {
 
 export const ChessContextProvider: React.FC<Props> = ({ children, code }) => {
   const openSnackbar = useContext(SnackbarContext);
+  const openDialog = useContext(DialogContext);
   const { email } = useContext(AuthContext);
 
   const stompClient = useRef(Stomp.over(new WebSocket(`${baseWSUrl}/connect`)));
@@ -76,16 +78,22 @@ export const ChessContextProvider: React.FC<Props> = ({ children, code }) => {
     (gameState: Message) => {
       const { state, game } = JSON.parse(gameState.body);
 
-      switch (state) {
-        case 'Valid move':
-          setMe((prevState) => ({ ...prevState, myTurn: !prevState.myTurn }));
-          updateChessGame(game);
-          break;
-        case 'Invalid move':
-          openSnackbar({ content: 'Invalid move', severity: 'error' });
-          break;
-        default:
-          openSnackbar({ content: 'Unknown message', severity: 'error' });
+      if (game.gameOver) {
+        setMe((prevState) => ({ ...prevState, myTurn: false }));
+        openDialog({ content: state, redirect: ROUTES.CREATE_GAME });
+        updateChessGame(game);
+      } else {
+        switch (state) {
+          case 'Valid move':
+            setMe((prevState) => ({ ...prevState, myTurn: !prevState.myTurn }));
+            updateChessGame(game);
+            break;
+          case 'Invalid move':
+            openSnackbar({ content: 'Invalid move', severity: 'error' });
+            break;
+          default:
+            openSnackbar({ content: 'Unknown message', severity: 'error' });
+        }
       }
     },
     [openSnackbar]
